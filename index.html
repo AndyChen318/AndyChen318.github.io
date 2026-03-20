@@ -78,81 +78,96 @@
     <article id="post-纠删码基础入门" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   <div class="article-meta">
     <a href="/2026/03/20/%E7%BA%A0%E5%88%A0%E7%A0%81%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8/" class="article-date">
-  <time class="dt-published" datetime="2026-03-20T12:55:29.538Z" itemprop="datePublished">2026-03-20</time>
+  <time class="dt-published" datetime="2026-03-20T14:00:00.000Z" itemprop="datePublished">2026-03-20</time>
 </a>
     
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/%E7%A7%91%E7%A0%94%E7%AC%94%E8%AE%B0/">科研笔记</a>
+  </div>
+
   </div>
   <div class="article-inner">
     
     
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="p-name article-title" href="/2026/03/20/%E7%BA%A0%E5%88%A0%E7%A0%81%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8/">纠删码 (Erasure Codes) 基础入门：从备份到编码</a>
+    </h1>
+  
+
+      </header>
+    
     <div class="e-content article-entry" itemprop="articleBody">
       
-        <p>-–</p>
-<p>title: 纠删码 (Erasure Codes) 基础入门：从备份到编码</p>
-<p>date: 2026-03-20 22:00:00</p>
-<p>tags: [纠删码, 存储技术, 分布式系统]</p>
-<p>categories: 科研笔记</p>
-<p>mathjax: true</p>
-<p>-–</p>
-<p>## 1. 为什么需要纠删码？</p>
-<p>在海量数据存储场景下（如云存储、分布式文件系统），数据的**可靠性**是首要考量。传统的方案是**多副本（Replication）**，即把一份数据存三份。</p>
-<p>* **多副本的缺点：** 存储开销巨大，利用率仅为 $33.3\%$。</p>
-<p>* **纠删码的优势：** 在提供同等甚至更高可靠性的前提下，极大降低存储冗余。例如 $(6, 3)$ 编码的利用率可达 $66.7\%$。</p>
-<p>-–</p>
-<p>## 2. 纠删码的核心定义</p>
-<p>纠删码（Erasure Codes, EC）是一种将 $k$ 个原始数据块转换成 $n$ 个编码块（其中 $n &#x3D; k + m$）的技术。</p>
-<p>* **$k$：** 原始数据块数量。</p>
-<p>* **$m$：** 校验块（冗余块）数量。</p>
-<p>* **容错能力：** 只要任意 $k$ 个块存活，就能恢复出原始数据。也就是说，系统允许同时损坏 $m$ 个块。</p>
-<p>-–</p>
-<p>## 3. 数学原理：以 Reed-Solomon (RS) 码为例</p>
-<p>RS 码是目前应用最广泛的纠删码，其本质是利用**线性代数**中的矩阵运算。</p>
-<p>### 编码过程</p>
-<p>我们将 $k$ 个数据块看作向量 $D$，通过一个生成矩阵 $G$（通常采用 **Vandermonde 矩阵** 或 **Cauchy 矩阵**）进行变换：</p>
-<p>$$</p>
-<p>C &#x3D; G \cdot D</p>
-<p>$$</p>
-<p>展开形式如下：</p>
-<p>$$</p>
-<p>\begin{bmatrix} d_1 \\ d_2 \\ \vdots \\ d_k \\ c_1 \\ \vdots \\ c_m \end{bmatrix} &#x3D; </p>
-<p>\begin{bmatrix} </p>
-<p>1 &amp; 0 &amp; \cdots &amp; 0 \\</p>
-<p>0 &amp; 1 &amp; \cdots &amp; 0 \\</p>
-<p>\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\</p>
-<p>0 &amp; 0 &amp; \cdots &amp; 1 \\</p>
-<p>g_{k+1,1} &amp; g_{k+1,2} &amp; \cdots &amp; g_{k+1,k} \\</p>
-<p>\vdots &amp; \vdots &amp; \ddots &amp; \vdots \\</p>
-<p>g_{n,1} &amp; g_{n,2} &amp; \cdots &amp; g_{n,k}</p>
-<p>\end{bmatrix} \cdot </p>
-<p>\begin{bmatrix} d_1 \\ d_2 \\ \vdots \\ d_k \end{bmatrix}</p>
-<p>$$</p>
-<p>### 解码（恢复）过程</p>
-<p>当部分数据丢失时，我们从生成矩阵 $G$ 中提取对应剩余存活块的 $k$ 行，构成一个新的方阵 $G’$。只要 $G$ 的任意 $k$ 行线性无关（这是 RS 码的核心特性），$G’$ 就是可逆的：</p>
-<p>$$</p>
-<p>D &#x3D; (G’)^{-1} \cdot C’</p>
-<p>$$</p>
-<p>-–</p>
-<p>## 4. 纠删码的分类</p>
-<p>| 类别 | 代表算法 | 特点 |</p>
-<p>| :— | :— | :— |</p>
-<p>| **标准纠删码** | RS 码 (Reed-Solomon) | 理论最严谨，存储利用率最高，但计算开销大。 |</p>
-<p>| **局部修复码** | LRC (Locally Repairable Codes) | 降低单块丢失时的修复带宽，适用于超大规模存储。 |</p>
-<p>| **再生码** | Regenerating Codes | 进一步优化网络带宽，利用网络编码原理。 |</p>
-<p>-–</p>
-<p>## 5. 我的研究方向：BiLP-BX 模型</p>
-<p>虽然 RS 码数学上很完美，但在工程实现中，**XOR（异或）计算调度**和**生成矩阵的稀疏性**直接影响到硬件性能。</p>
-<p>我的研究课题 **BiLP-BX 模型** 旨在通过**二层规划（Bi-level Programming）**的方法，在上层优化矩阵的稀疏性，在下层寻找最优的 XOR 调度路径。这对于提高实时硬件解码效率（如我参加的集成电路设计竞赛中的 ROM 编码任务）具有重要意义。</p>
-<p>-–</p>
+        <h2 id="1-为什么需要纠删码？"><a href="#1-为什么需要纠删码？" class="headerlink" title="1. 为什么需要纠删码？"></a>1. 为什么需要纠删码？</h2><p>在海量数据存储场景下（如云存储、分布式文件系统），数据的<strong>可靠性</strong>是首要考量。传统的方案是<strong>多副本（Replication）</strong>，即把一份数据存三份。</p>
+<ul>
+<li><strong>多副本的缺点：</strong> 存储开销巨大，利用率仅为 $33.3\%$。</li>
+<li><strong>纠删码的优势：</strong> 在提供同等甚至更高可靠性的前提下，极大降低存储冗余。例如 $(6, 3)$ 编码的利用率可达 $66.7\%$。</li>
+</ul>
+<hr>
+<h2 id="2-纠删码的核心定义"><a href="#2-纠删码的核心定义" class="headerlink" title="2. 纠删码的核心定义"></a>2. 纠删码的核心定义</h2><p>纠删码（Erasure Codes, EC）是一种将 $k$ 个原始数据块转换成 $n$ 个编码块（其中 $n = k + m$）的技术。</p>
+<ul>
+<li><strong>$k$：</strong> 原始数据块数量。</li>
+<li><strong>$m$：</strong> 校验块（冗余块）数量。</li>
+<li><strong>容错能力：</strong> 只要任意 $k$ 个块存活，就能恢复出原始数据。也就是说，系统允许同时损坏 $m$ 个块。</li>
+</ul>
+<hr>
+<h2 id="3-数学原理：以-Reed-Solomon-RS-码为例"><a href="#3-数学原理：以-Reed-Solomon-RS-码为例" class="headerlink" title="3. 数学原理：以 Reed-Solomon (RS) 码为例"></a>3. 数学原理：以 Reed-Solomon (RS) 码为例</h2><p>RS 码是目前应用最广泛的纠删码，其本质是利用<strong>线性代数</strong>中的矩阵运算。</p>
+<h3 id="编码过程"><a href="#编码过程" class="headerlink" title="编码过程"></a>编码过程</h3><p>我们将 $k$ 个数据块看作向量 $D$，通过一个生成矩阵 $G$（通常采用 <strong>Vandermonde 矩阵</strong> 或 <strong>Cauchy 矩阵</strong>）进行变换：</p>
+<script type="math/tex; mode=display">
+C = G \cdot D</script><p>展开形式如下：</p>
+<script type="math/tex; mode=display">
+\begin{bmatrix} d_1 \\ d_2 \\ \vdots \\ d_k \\ c_1 \\ \vdots \\ c_m \end{bmatrix} = 
+\begin{bmatrix} 
+1 & 0 & \cdots & 0 \\
+0 & 1 & \cdots & 0 \\
+\vdots & \vdots & \ddots & \vdots \\
+0 & 0 & \cdots & 1 \\
+g_{k+1,1} & g_{k+1,2} & \cdots & g_{k+1,k} \\
+\vdots & \vdots & \ddots & \vdots \\
+g_{n,1} & g_{n,2} & \cdots & g_{n,k}
+\end{bmatrix} \cdot 
+\begin{bmatrix} d_1 \\ d_2 \\ \vdots \\ d_k \end{bmatrix}</script><h3 id="解码（恢复）过程"><a href="#解码（恢复）过程" class="headerlink" title="解码（恢复）过程"></a>解码（恢复）过程</h3><p>当部分数据丢失时，我们从生成矩阵 $G$ 中提取对应剩余存活块的 $k$ 行，构成一个新的方阵 $G’$。只要 $G$ 的任意 $k$ 行线性无关（这是 RS 码的核心特性），$G’$ 就是可逆的：</p>
+<script type="math/tex; mode=display">
+D = (G')^{-1} \cdot C'</script><hr>
+<h2 id="4-纠删码的分类"><a href="#4-纠删码的分类" class="headerlink" title="4. 纠删码的分类"></a>4. 纠删码的分类</h2><div class="table-container">
+<table>
+<thead>
+<tr>
+<th style="text-align:left">类别</th>
+<th style="text-align:left">代表算法</th>
+<th style="text-align:left">特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>标准纠删码</strong></td>
+<td style="text-align:left">RS 码 (Reed-Solomon)</td>
+<td style="text-align:left">理论最严谨，存储利用率最高，但计算开销大。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>局部修复码</strong></td>
+<td style="text-align:left">LRC (Locally Repairable Codes)</td>
+<td style="text-align:left">降低单块丢失时的修复带宽，适用于超大规模存储。</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>再生码</strong></td>
+<td style="text-align:left">Regenerating Codes</td>
+<td style="text-align:left">进一步优化网络带宽，利用网络编码原理。</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="5-我的研究方向：BiLP-BX-模型"><a href="#5-我的研究方向：BiLP-BX-模型" class="headerlink" title="5. 我的研究方向：BiLP-BX 模型"></a>5. 我的研究方向：BiLP-BX 模型</h2><p>虽然 RS 码数学上很完美，但在工程实现中，<strong>XOR（异或）计算调度</strong>和<strong>生成矩阵的稀疏性</strong>直接影响到硬件性能。</p>
+<p>我的研究课题 <strong>BiLP-BX 模型</strong> 旨在通过<strong>二层规划（Bi-level Programming）</strong>的方法，在上层优化矩阵的稀疏性，在下层寻找最优的 XOR 调度路径。这对于提高实时硬件解码效率（如我参加的集成电路设计竞赛中的 ROM 编码任务）具有重要意义。</p>
+<hr>
 <blockquote>
-<p>**参考资料：**</p>
-</blockquote>
-<blockquote>
+<p><strong>参考资料：</strong></p>
 <ol>
 <li>James S. Plank, “Erasure Codes for Storage Systems”.</li>
-</ol>
-</blockquote>
-<blockquote>
-<ol start="2">
 <li>里德-所罗门码维基百科.</li>
 </ol>
 </blockquote>
@@ -160,10 +175,12 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/03/20/%E7%BA%A0%E5%88%A0%E7%A0%81%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8/" data-id="cuidEig8l1wP1h90a1rUJfyzm" data-title="" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/03/20/%E7%BA%A0%E5%88%A0%E7%A0%81%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8/" data-id="cuidY6U7goBRGuYC3SXJNUX4a" data-title="纠删码 (Erasure Codes) 基础入门：从备份到编码" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" rel="tag">分布式系统</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E5%AD%98%E5%82%A8%E6%8A%80%E6%9C%AF/" rel="tag">存储技术</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/%E7%BA%A0%E5%88%A0%E7%A0%81/" rel="tag">纠删码</a></li></ul>
+
     </footer>
   </div>
   
@@ -196,22 +213,18 @@
       
         <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
 <h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
 <p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
 <h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
 <p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
 <h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
 <p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
 <h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
 <p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/03/20/hello-world/" data-id="cuidGO_iNxJYTOzxhMbudzgzc" data-title="Hello World" class="article-share-link"><span class="fa fa-share">分享</span></a>
+      <a data-url="http://example.com/2026/03/20/hello-world/" data-id="cuidxdoGd5WPaKDM8z_yiYdF9" data-title="Hello World" class="article-share-link"><span class="fa fa-share">分享</span></a>
       
       
       
@@ -230,12 +243,33 @@
           <aside id="sidebar">
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">分类</h3>
+    <div class="widget">
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/%E7%A7%91%E7%A0%94%E7%AC%94%E8%AE%B0/">科研笔记</a></li></ul>
+    </div>
+  </div>
+
 
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签</h3>
+    <div class="widget">
+      <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" rel="tag">分布式系统</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%AD%98%E5%82%A8%E6%8A%80%E6%9C%AF/" rel="tag">存储技术</a></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E7%BA%A0%E5%88%A0%E7%A0%81/" rel="tag">纠删码</a></li></ul>
+    </div>
+  </div>
+
 
   
     
+  <div class="widget-wrap">
+    <h3 class="widget-title">标签云</h3>
+    <div class="widget tagcloud">
+      <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F/" style="font-size: 10px;">分布式系统</a> <a href="/tags/%E5%AD%98%E5%82%A8%E6%8A%80%E6%9C%AF/" style="font-size: 10px;">存储技术</a> <a href="/tags/%E7%BA%A0%E5%88%A0%E7%A0%81/" style="font-size: 10px;">纠删码</a>
+    </div>
+  </div>
+
   
     
   <div class="widget-wrap">
@@ -254,7 +288,7 @@
       <ul>
         
           <li>
-            <a href="/2026/03/20/%E7%BA%A0%E5%88%A0%E7%A0%81%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8/">(no title)</a>
+            <a href="/2026/03/20/%E7%BA%A0%E5%88%A0%E7%A0%81%E5%9F%BA%E7%A1%80%E5%85%A5%E9%97%A8/">纠删码 (Erasure Codes) 基础入门：从备份到编码</a>
           </li>
         
           <li>
